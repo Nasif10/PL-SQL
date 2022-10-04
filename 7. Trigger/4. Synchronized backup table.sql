@@ -1,0 +1,28 @@
+SET SERVEROUTPUT ON;
+
+DROP TABLE emp_bak;	
+CREATE TABLE emp_bak AS SELECT * FROM emp;
+
+
+CREATE OR REPLACE TRIGGER emp_bak 
+BEFORE INSERT OR DELETE OR UPDATE 
+ON emp
+FOR EACH ROW
+
+BEGIN
+	IF INSERTING THEN
+		INSERT INTO emp_bak VALUES(:NEW.id, :NEW.name, :NEW.salary);
+	ELSIF DELETING THEN
+		DELETE FROM emp_bak WHERE id = :OLD.id;	
+	ELSIF UPDATING THEN
+		UPDATE emp_bak SET salary = :NEW.salary WHERE id = :OLD.id;
+	END IF;
+END;
+/
+
+INSERT INTO emp values(6,'F',160);
+DELETE FROM emp WHERE id = 1;
+UPDATE emp SET salary = 200 WHERE id = 2;
+
+SELECT * FROM emp;
+SELECT * FROM emp_bak;
